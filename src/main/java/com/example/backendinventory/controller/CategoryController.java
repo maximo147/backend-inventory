@@ -25,7 +25,8 @@ public class CategoryController {
     @GetMapping
     public ResponseEntity<GenericoResponse<Category>> getCategories() throws Exception {
         List<Category> lista = categoryService.getAll();
-        GenericoResponse<Category> genericoResponse = new GenericoResponse("GET", Integer.toString(HttpStatus.OK.value()), LocalDateTime.now().toString(), lista);
+        GenericoResponse<Category> genericoResponse =
+                new GenericoResponse("GET", Integer.toString(HttpStatus.OK.value()), LocalDateTime.now().toString(), lista);
         return new ResponseEntity<>(genericoResponse, HttpStatus.OK);
     }
 
@@ -35,7 +36,6 @@ public class CategoryController {
         GenericoResponse<Category> genericoResponse =
                 new GenericoResponse<>("GET", Integer.toString(HttpStatus.OK.value()), LocalDateTime.now().toString(), List.of(category));
         return new ResponseEntity<>(genericoResponse, HttpStatus.OK);
-
     }
 
 }
