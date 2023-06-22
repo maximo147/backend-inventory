@@ -10,4 +10,6 @@ public interface ICategoryService<T, ID> {
     T save(T t) throws Exception;
     T update(T t, ID id) throws Exception;
     void delete(ID id) throws Exception;
+
+    Category getByName(String name) throws Exception;
 }
