@@ -41,8 +41,11 @@ public class CategoryServiceImpl implements ICategoryService<Category, Integer> 
 
     @Override
     @Transactional
-    public void delete(Integer id) throws Exception {
+    public Category delete(Integer id) throws Exception {
+        Category category1 = repository.findById(id).orElseThrow(() -> new Exception(new Exception("No se encontró categoría")));
         repository.deleteById(id);
+
+        return category1;
     }
 
     @Override

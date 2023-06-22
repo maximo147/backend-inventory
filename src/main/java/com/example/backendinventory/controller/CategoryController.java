@@ -4,6 +4,7 @@ import com.example.backendinventory.model.Category;
 import com.example.backendinventory.response.GenericoResponse;
 import com.example.backendinventory.service.impl.CategoryServiceImpl;
 import com.example.backendinventory.util.ConverterString;
+import org.apache.tomcat.util.http.parser.HttpParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -80,5 +81,12 @@ public class CategoryController {
         return new ResponseEntity<>(genericoResponse, HttpStatus.OK);
     }
 
+    @DeleteMapping("{id}")
+    public ResponseEntity<GenericoResponse<Category>> deleteCategory(@PathVariable(value = "id") Integer id) throws Exception {
+        Category category1 = categoryService.getById(id);
 
+        categoryService.delete(id);
+        GenericoResponse<Category> genericoResponse = new GenericoResponse<>("DELETE", Integer.toString(HttpStatus.OK.value()), LocalDateTime.now().toString(), List.of(category1));
+        return new ResponseEntity<>(genericoResponse, HttpStatus.OK);
+    }
 }
