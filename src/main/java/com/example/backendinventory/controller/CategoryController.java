@@ -57,4 +57,28 @@ public class CategoryController {
         return new ResponseEntity<>(genericoResponse, HttpStatus.CREATED);
     }
 
+    @PutMapping("{id}")
+    public ResponseEntity<GenericoResponse<Category>> putCategory(@RequestBody Category category, @PathVariable(value = "id") Integer id) throws Exception {
+        if(category == null){
+            throw new Exception("No se encontró objeto");
+        }
+        // Convertir a Lower los campos en String
+        ConverterString<Category> converterLower = new ConverterString<>();
+        Category categoryLower =  converterLower.ConverterLower(category);
+
+        // Verificar si no se repite un ´name´
+        if(categoryService.getByName(category.getName()) != null) {
+            throw new Exception("El nombre ya existe");
+        }
+
+        Category auxCategory = categoryService.update(categoryLower, id);
+        if(auxCategory == null){
+            throw new Exception("No se pudo actualizar objeto");
+        }
+        GenericoResponse<Category> genericoResponse =
+                new GenericoResponse<>("POST", Integer.toString(HttpStatus.OK.value()), LocalDateTime.now().toString(), List.of(category));
+        return new ResponseEntity<>(genericoResponse, HttpStatus.OK);
+    }
+
+
 }
