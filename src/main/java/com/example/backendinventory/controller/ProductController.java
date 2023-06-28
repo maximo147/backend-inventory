@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1/product")
@@ -24,7 +23,11 @@ public class ProductController {
     @Autowired
     private CategoryServiceImpl categoryService;
 
-
+    /**
+     *
+     * @return
+     * @throws Exception
+     */
     @GetMapping
     public ResponseEntity<GenericoResponse<Product>> getProducts() throws Exception {
         List<Product> lista = productService.getAll();
@@ -34,18 +37,15 @@ public class ProductController {
                     }
                 });
 
-
-
         GenericoResponse<Product> genericoResponse =
                 new GenericoResponse("GET", Integer.toString(HttpStatus.OK.value()), LocalDateTime.now().toString(), lista);
-        System.out.println(genericoResponse);
         return new ResponseEntity<>(genericoResponse, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<GenericoResponse<Product>> getProductById(@PathVariable(name = "id") Integer id) throws Exception {
         Product product = productService.getById(id);
-        if(product != null){
+        if(product != null && product.getPicture() != null){
             product.setPicture(ConverterImageBytes.decompressZLib(product.getPicture()));
         }
         GenericoResponse<Product> genericoResponse =
@@ -125,8 +125,13 @@ public class ProductController {
         Product productVerificar = productService.getById(id);
 
         if(picture != null && !picture.isEmpty()){
+            System.out.println("NOOOOOO");
             byte[] pictuteBytes = picture.getBytes();
             product.setPicture(ConverterImageBytes.compressZLib(pictuteBytes));
+        }
+        if(picture == null){
+            System.out.println("SIIIIII");
+            product.setPicture(productVerificar.getPicture());
         }
 
         Product auxProduct = productService.update(product, id);
@@ -149,6 +154,10 @@ public class ProductController {
 
     /**
      *
+     * @param id
+     * @param description
+     * @return
+     * @throws Exception
      */
     @GetMapping("{id}/{description}")
     public ResponseEntity<GenericoResponse<Product>> getProductByIdOrName(@PathVariable(value = "id") Integer id,
