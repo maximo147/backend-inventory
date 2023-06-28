@@ -4,7 +4,6 @@ import com.example.backendinventory.model.Category;
 import com.example.backendinventory.response.GenericoResponse;
 import com.example.backendinventory.service.impl.CategoryServiceImpl;
 import com.example.backendinventory.util.ConverterString;
-import org.apache.tomcat.util.http.parser.HttpParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/category")
+@CrossOrigin(origins = "http://localhost:4200")
 public class CategoryController {
     @Autowired
     private CategoryServiceImpl categoryService;
@@ -35,6 +35,7 @@ public class CategoryController {
                 new GenericoResponse<>("GET", Integer.toString(HttpStatus.OK.value()), LocalDateTime.now().toString(), List.of(category));
         return new ResponseEntity<>(genericoResponse, HttpStatus.OK);
     }
+
     @PostMapping
     public ResponseEntity<GenericoResponse<Category>> postCategory(@RequestBody Category category) throws Exception {
         if(category == null){
@@ -46,7 +47,7 @@ public class CategoryController {
 
         // Verificar si no se repite un ´name´
         if(categoryService.getByName(category.getName()) != null) {
-            throw new Exception("El nombre ya existe");
+            throw new Exception("El nombre de la categoría ya existe");
         }
 
         Category auxCategory = categoryService.save(categoryLower);
@@ -68,8 +69,9 @@ public class CategoryController {
         Category categoryLower =  converterLower.ConverterLower(category);
 
         // Verificar si no se repite un ´name´
-        if(categoryService.getByName(category.getName()) != null) {
-            throw new Exception("El nombre ya existe");
+        Category categoryAux = categoryService.getByName(category.getName());
+        if(categoryAux != null && categoryAux.getId() != id) {
+            throw new Exception("El nombre de la categoría ya existe");
         }
 
         Category auxCategory = categoryService.update(categoryLower, id);
@@ -89,4 +91,17 @@ public class CategoryController {
         GenericoResponse<Category> genericoResponse = new GenericoResponse<>("DELETE", Integer.toString(HttpStatus.OK.value()), LocalDateTime.now().toString(), List.of(category1));
         return new ResponseEntity<>(genericoResponse, HttpStatus.OK);
     }
+
+    /**
+     *
+     */
+    @GetMapping("{id}/{description}")
+    public ResponseEntity<GenericoResponse<Category>> getCategorieByIdOrName(@PathVariable(value = "id") Integer id,
+                                                                                      @PathVariable(value = "description") String description) throws Exception {
+        List<Category> categories = categoryService.getCategorieByIdOrName(id, description);
+        GenericoResponse<Category> genericoResponse =
+                new GenericoResponse<>("GET", Integer.toString(HttpStatus.OK.value()), LocalDateTime.now().toString(), categories);
+        return new ResponseEntity<>(genericoResponse, HttpStatus.OK);
+    }
+
 }
