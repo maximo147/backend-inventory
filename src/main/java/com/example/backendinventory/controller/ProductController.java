@@ -4,7 +4,10 @@ import com.example.backendinventory.model.Product;
 import com.example.backendinventory.response.GenericoResponse;
 import com.example.backendinventory.service.impl.CategoryServiceImpl;
 import com.example.backendinventory.service.impl.ProductServiceImpl;
+import com.example.backendinventory.util.CategoryExcelExport;
 import com.example.backendinventory.util.ConverterImageBytes;
+import com.example.backendinventory.util.ProductExcelExport;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -125,12 +128,10 @@ public class ProductController {
         Product productVerificar = productService.getById(id);
 
         if(picture != null && !picture.isEmpty()){
-            System.out.println("NOOOOOO");
             byte[] pictuteBytes = picture.getBytes();
             product.setPicture(ConverterImageBytes.compressZLib(pictuteBytes));
         }
         if(picture == null){
-            System.out.println("SIIIIII");
             product.setPicture(productVerificar.getPicture());
         }
 
@@ -171,6 +172,21 @@ public class ProductController {
         GenericoResponse<Product> genericoResponse =
                 new GenericoResponse<>("GET", Integer.toString(HttpStatus.OK.value()), LocalDateTime.now().toString(), categories);
         return new ResponseEntity<>(genericoResponse, HttpStatus.OK);
+    }
+
+
+    @GetMapping("export/excel")
+    public void exportToExcel(HttpServletResponse response) throws Exception {
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=result_product.xlsx";
+        response.setHeader(headerKey, headerValue);
+        //ResponseEntity<GenericoResponse> genericoResponseResponseEntity = categoryService.getAll();
+        ProductExcelExport excelExport = new ProductExcelExport(
+                productService.getAll()
+        );
+
+        excelExport.export(response);
     }
 
 }

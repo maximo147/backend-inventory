@@ -3,7 +3,9 @@ package com.example.backendinventory.controller;
 import com.example.backendinventory.model.Category;
 import com.example.backendinventory.response.GenericoResponse;
 import com.example.backendinventory.service.impl.CategoryServiceImpl;
+import com.example.backendinventory.util.CategoryExcelExport;
 import com.example.backendinventory.util.ConverterString;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -102,6 +104,26 @@ public class CategoryController {
         GenericoResponse<Category> genericoResponse =
                 new GenericoResponse<>("GET", Integer.toString(HttpStatus.OK.value()), LocalDateTime.now().toString(), categories);
         return new ResponseEntity<>(genericoResponse, HttpStatus.OK);
+    }
+
+
+    /**
+     * Export to excel
+     * @param response
+     * @throws Exception
+     */
+    @GetMapping("export/excel")
+    public void exportToExcel(HttpServletResponse response) throws Exception {
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=result_category.xlsx";
+        response.setHeader(headerKey, headerValue);
+        //ResponseEntity<GenericoResponse> genericoResponseResponseEntity = categoryService.getAll();
+        CategoryExcelExport excelExport = new CategoryExcelExport(
+                categoryService.getAll()
+        );
+
+        excelExport.export(response);
     }
 
 }
